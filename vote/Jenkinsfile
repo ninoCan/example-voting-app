@@ -15,7 +15,7 @@ pipeline {
     }
     stage('test'){
         steps{
-            echo 'running unit tests on worker app'
+            echo 'Running unit tests on vote app'
             dir('vote'){
                 sh 'python -m unittest'
             }
@@ -23,7 +23,7 @@ pipeline {
     }
     stage('package'){
         steps{
-            echo 'packaging worker app into a egg'
+            echo 'Packaging voter app into a egg'
             dir('vote'){
                 sh 'python setup.py sdist bdist_wheel'
                 archiveArtifacts artifacts: '**/vote/*.whl', fingerprint: true
