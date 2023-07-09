@@ -95,7 +95,8 @@ pipeline {
         echo 'Packaging worker app with docker'
         script {
         docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
-            def workerImage = docker.build("ninoCan/worker:v${env.BUILD_ID}", './worker')
+            def workerImage = docker.build("ninoCan/worker:v${env.BUILD_ID}", 
+'./worker')
             workerImage.push()
             workerImage.push("${env.BRANCH_NAME}")
             workerImage.push('latest')
@@ -171,7 +172,8 @@ pipeline {
         echo 'Packaging result app with docker'
         script {
         docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
-            def resultImage = docker.build("ninoCan/result:v${env.BUILD_ID}", './result')
+            def resultImage = docker.build("ninoCan/result:v${env.BUILD_ID}", 
+'./result')
             resultImage.push()
             resultImage.push("${env.BRANCH_NAME}")
             resultImage.push('latest')
@@ -211,11 +213,26 @@ pipeline {
           }
 
           stage('vote-test') {
-          agent {
-          docker {
-          image 'python:2.7.16-slim'
-          args '--user root'
+            agent {
+                docker {
+                    image 'python:2.7.16-slim'
+                    args '--user root'
         
+          }
+          stage('vote integration'){
+              agent any
+              when{
+                  changeset "**/vote/**"
+                  branch 'master'
+  
+              }
+              steps{
+                  echo 'Running Integration Tests on vote app'
+                  dir('vote'){
+                      sh 'sh integration_test.sh'
+  
+                  }
+              }
           }
 
       
@@ -237,17 +254,11 @@ pipeline {
     
           }
 
-          stage('vote integration'){ 
-    agent any 
-    when{ 
-      changeset "**/vote/**" 
-      branch 'master' 
+          stage('vote integration'){ agent any when{ changeset "**/vote/**" 
+branch 'master' 
     
-    } 
-              steps{ 
-      echo 'Running Integration Tests on vote app' 
-          dir('vote'){ 
-        sh 'sh integration_test.sh' 
+    } steps{ echo 'Running Integration Tests on vote app' dir('vote'){ sh 'sh 
+integration_test.sh' 
       
           } 
     
@@ -262,7 +273,8 @@ pipeline {
         echo 'Packaging vote app with docker'
             script {
                 docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
-            def voteImage = docker.build("ninoCan/vote:${env.GIT_COMMIT}", "./vote")
+            def voteImage = docker.build("ninoCan/vote:${env.GIT_COMMIT}", 
+"./vote")
             voteImage.push()
             voteImage.push("${env.BRANCH_NAME}")
             voteImage.push("latest")
@@ -299,14 +311,15 @@ pipeline {
                     stage("Quality Gate") {
                         steps {
                             timeout(time: 1, unit: 'HOURS') {
-                                // Parameter indicates whether to set pipeline to
+                                // Parameter indicates whether to set pipeline 
+                                // to
                                 UNSTABLE if Quality Gate fails
-                                // true = set pipeline to UNSTABLE, false = don't
+                                // true = set pipeline to UNSTABLE, false = 
+                                // don't
                                 waitForQualityGate abortPipeline: true
                             }
                         }
-                    }   
-                }
+                    }   }
 
               stage('deploy to dev') {
                   agent any
