@@ -1,6 +1,7 @@
 FROM node:18.12-bullseye-slim
 
-# Discussion for the reason of this line can be found here https://github.com/bazelbuild/rules_closure/issues/351
+# Discussion for the reason of this line can be found here
+# https://github.com/bazelbuild/rules_closure/issues/351
 ENV OPENSSL_CONF=/dev/null
 # OpenSSL upgrade section
 
